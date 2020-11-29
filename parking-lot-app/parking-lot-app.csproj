@@ -66,6 +66,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Model\MyView\File.cs" />
     <Compile Include="ViewModels\MyViewViewModel.cs" />
     <Compile Include="ViewModels\PrismUserControl1ViewModel.cs" />
     <Compile Include="ViewModels\View1ViewModel.cs" />
@@ -144,5 +145,6 @@
   <ItemGroup>
     <Resource Include="application.ico" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
