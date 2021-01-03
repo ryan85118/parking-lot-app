@@ -1,10 +1,17 @@
-﻿<Window x:Class="parking_lot_app.Views.MainWindow"
-        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:prism="http://prismlibrary.com/"
-        prism:ViewModelLocator.AutoWireViewModel="True"
-        Title="{Binding Title}" Height="350" Width="525">
-    <Grid>
-        <ContentControl prism:RegionManager.RegionName="ContentRegion" />
-    </Grid>
+﻿<Window
+ x:Class="parking_lot_app.Views.MainWindow"
+ xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+ xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+ xmlns:prism="http://prismlibrary.com/"
+ Title="{Binding Title}"
+ Width="525"
+ Height="350"
+ prism:ViewModelLocator.AutoWireViewModel="True">
+ <Grid>
+ <Grid.ColumnDefinitions>
+ <ColumnDefinition Width="187*"/>
+ <ColumnDefinition Width="332*"/>
+ </Grid.ColumnDefinitions>
+ <ContentControl prism:RegionManager.RegionName="ContentRegion" Grid.ColumnSpan="2" Margin="0,0,0.4,-0.2" />
+ </Grid>
 </Window>

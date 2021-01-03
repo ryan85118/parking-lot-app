@@ -5,42 +5,42 @@ using Prism.Regions;
 
 namespace parking_lot_app
 {
-    /// <summary>
-    /// Interaction logic for App.xaml
-    /// </summary>
-    public partial class App
-    {
-        protected override Window CreateShell()
-        {
-            return Container.Resolve<MainWindow>();
-        }
+ /// <summary>
+ /// Interaction logic for App.xaml
+ /// </summary>
+ public partial class App
+ {
+ protected override Window CreateShell()
+ {
+ return Container.Resolve<MainWindow>();
+ }
 
-        protected override void RegisterTypes(IContainerRegistry containerRegistry)
-        {
-            containerRegistry.RegisterForNavigation<MyView>();
-            containerRegistry.RegisterForNavigation<View1>();
-            containerRegistry.RegisterForNavigation<PrismUserControl1>(); 
-            containerRegistry.RegisterForNavigation<View2>();
-            //containerRegistry.RegisterForNavigation<object,MyView>(nameof(MyView));
+ protected override void RegisterTypes(IContainerRegistry containerRegistry)
+ {
+ containerRegistry.RegisterForNavigation<MyView>();
+ containerRegistry.RegisterForNavigation<View1>();
+ containerRegistry.RegisterForNavigation<PrismUserControl1>(); 
+ containerRegistry.RegisterForNavigation<View2>();
+ //containerRegistry.RegisterForNavigation<object,MyView>(nameof(MyView));
 
-        }
+ }
 
-        // 在這裡指定 Region 要顯示的 View ，也是可行的
-        protected override void Initialize()
-        {
-            base.Initialize();
-            //IContainerProvider container = (App.Current as PrismApplication).Container;
-            IContainerProvider container = Container;
-            IRegionManager regionManager = container.Resolve<IRegionManager>();
-            //regionManager.RegisterViewWithRegion("ContentRegion", typeof(MyView));
+ // 在這裡指定 Region 要顯示的 View ，也是可行的
+ protected override void Initialize()
+ {
+ base.Initialize();
+ //IContainerProvider container = (App.Current as PrismApplication).Container;
+ IContainerProvider container = Container;
+ IRegionManager regionManager = container.Resolve<IRegionManager>();
+ //regionManager.RegisterViewWithRegion("ContentRegion", typeof(MyView));
 
-            //var view = container.Resolve<MyView>();
-            regionManager.RequestNavigate("ContentRegion", nameof(MyView));
+ //var view = container.Resolve<MyView>();
+ regionManager.RequestNavigate("ContentRegion", nameof(MyView));
 
 
-            //IRegion region = regionManager.Regions["ContentRegion"];
-            //var view = container.Resolve<MyView>();
-            //region.Add(view);
-        }
-    }
+ //IRegion region = regionManager.Regions["ContentRegion"];
+ //var view = container.Resolve<MyView>();
+ //region.Add(view);
+ }
+ }
 }

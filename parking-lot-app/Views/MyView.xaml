@@ -1,27 +1,42 @@
 ﻿<UserControl
-    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:prism="http://prismlibrary.com/"
-    xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
-    x:Class="parking_lot_app.Views.MyView"
-    Width="525"
-    Height="350"
-    prism:ViewModelLocator.AutoWireViewModel="True">
-    <Grid Background="LightGray">
-        <StackPanel Orientation="Vertical">
-            <TextBlock
-                HorizontalAlignment="Center"
-                VerticalAlignment="Center"
-                FontSize="48"
-                Foreground="White"
-                Text="MyView" />
-            <TextBlock
-                HorizontalAlignment="Center"
-                VerticalAlignment="Center"
-                FontSize="30"
-                Text="{Binding Message}" />
-            <Button HorizontalAlignment="Center" Command="{Binding GoNextCommand}" Content="導航到下頁"/>
-        </StackPanel>
-        <Button Content="Open File" Command="{Binding OpenFile}" HorizontalAlignment="Left" VerticalAlignment="Top" Width="75" Margin="21,29,0,0" FontSize="9"/>
-    </Grid>
+ x:Class="parking_lot_app.Views.MyView"
+ xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+ xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+ xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+ xmlns:prism="http://prismlibrary.com/"
+ Width="500"
+ Height="300"
+ prism:ViewModelLocator.AutoWireViewModel="True">
+ <Grid Background="LightGray">
+ <TextBlock
+ HorizontalAlignment="Center"
+ FontSize="20"
+ Foreground="White"
+ Text="檔案" />
+ <Button
+ Width="99"
+ Margin="204,50,197,218"
+ HorizontalAlignment="Center"
+ Command="{Binding OpenFile}"
+ Content="開啟檔案" />
+ <!--<Button
+ Margin="0,0,-0.2,23.4"
+ HorizontalAlignment="Right"
+ VerticalAlignment="Bottom"
+ Command="{Binding GoNextCommand}"
+ Content="導航到下頁" />
+ <TextBlock
+ HorizontalAlignment="Right"
+ VerticalAlignment="Bottom"
+ FontSize="12"
+ Text="{Binding Message}" />-->
+ <TextBlock
+ Width="480"
+ Height="192"
+ Margin="10,98,0,0"
+ HorizontalAlignment="Left"
+ VerticalAlignment="Top"
+ Text="{Binding Log}"
+ TextWrapping="Wrap" />
+ </Grid>
 </UserControl>
