@@ -7,12 +7,16 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
-using System.Windows;
 
 namespace parking_lot_app.Model.MyView
 {
     class File
     {
+        private readonly IniApi ini = new IniApi("./Setting.ini");
+        private int space_value;
+        private int floor_value;
+        private int ceiling_value;
+
         private static readonly string eventFilePath = "./event";
         private static readonly string eventFileName = "event.txt";
         private static readonly string eventFile = Path.Combine(eventFilePath, eventFileName);
@@ -113,12 +117,18 @@ namespace parking_lot_app.Model.MyView
 
         private void SaveToCSV(DataTable oTable, string csvFilePath)
         {
+            space_value = Convert.ToInt32(ini.ReadIniFile("Setting", "space_value", @"10"));
+            floor_value = Convert.ToInt32(ini.ReadIniFile("Setting", "floor_value", @"10"));
+            ceiling_value = Convert.ToInt32(ini.ReadIniFile("Setting", "ceiling_value", @"200"));
+            ini.WriteIniFile("Setting", "space_value", space_value.ToString());
+            ini.WriteIniFile("Setting", "floor_value", floor_value.ToString());
+            ini.WriteIniFile("Setting", "ceiling_value", ceiling_value.ToString());
+
             int rowCount = oTable.Rows.Count;
             DataTable tempTable = new DataTable("Temp");
             DataTable EntryTimeTable = new DataTable("entryTime");
             DataTable StayTimeTable = new DataTable("stayTime");
             DataTable TotalAmountTable = new DataTable("totalAmount");
-
 
             //Now 停車票號,入場時間,出場時間,發票號碼,收費金額
             tempTable.Columns.Add("停車票號", typeof(string));
@@ -131,29 +141,32 @@ namespace parking_lot_app.Model.MyView
             EntryTimeTable.Columns.Add("日期／時間", typeof(string));
             for (int i = 0; i < 24; i++)
             {
-                EntryTimeTable.Columns.Add(i.ToString(), typeof(int));
+                EntryTimeTable.Columns.Add(i.ToString() + "-" + (i + 1).ToString() + "點", typeof(string));
             }
             EntryTimeTable.Columns.Add("總計", typeof(int));
 
             //StayTimeTable
-            //日期／小時 <0.5 <1小時 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 >=20 總計
-            StayTimeTable.Columns.Add("日期／小時", typeof(string));
-            StayTimeTable.Columns.Add("<0.5", typeof(int));
-            StayTimeTable.Columns.Add("<1", typeof(int));
-            for (int i = 1; i < 20; i++)
+            //日期／H <0.5 <1H 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 >=24 總計
+            StayTimeTable.Columns.Add("日期／H", typeof(string));
+            StayTimeTable.Columns.Add("<0.5H", typeof(double));
+            StayTimeTable.Columns.Add("<1H", typeof(double));
+            for (int i = 1; i < 24; i++)
             {
-                StayTimeTable.Columns.Add(i.ToString(), typeof(int));
+                StayTimeTable.Columns.Add($"{i}-{i + 1}H", typeof(double));
             }
-            StayTimeTable.Columns.Add(">=20", typeof(int));
-            StayTimeTable.Columns.Add("總計", typeof(int));
+            StayTimeTable.Columns.Add(">=24H", typeof(double));
+            StayTimeTable.Columns.Add("總計", typeof(double));
 
             //TotalAmountTable
             TotalAmountTable.Columns.Add("日期／元", typeof(string));
-            for (int i = 1; i <= 30; i++)
+            int floorIndex = floor_value / space_value;
+            int ceilingIndex = ceiling_value / space_value;
+
+            for (int i = 0; i <= ceilingIndex - floorIndex; i++)
             {
-                TotalAmountTable.Columns.Add((i * 10).ToString(), typeof(int));
+                TotalAmountTable.Columns.Add((i * space_value + floor_value).ToString(), typeof(int));
             }
-            TotalAmountTable.Columns.Add(">300", typeof(int));
+            TotalAmountTable.Columns.Add(">" + ceiling_value, typeof(int));
             TotalAmountTable.Columns.Add("總計", typeof(int));
 
 
@@ -247,6 +260,11 @@ namespace parking_lot_app.Model.MyView
                     continue;
                 }
 
+                using (StreamWriter sw = new StreamWriter("./test.txt", true))
+                {
+                    sw.WriteLine("name: " + name);
+                }
+
                 //Now 停車票號,入場時間,出場時間,發票號碼,收費金額
                 int tempTableCount = tempTable.Rows.Count;
                 for (int i = 0; i < endIndex - startIndex; i++)
@@ -276,7 +294,7 @@ namespace parking_lot_app.Model.MyView
                                 entryTimeIdx = 0;
 
                                 dr = StayTimeTable.NewRow();
-                                dr["日期／小時"] = firstDay.ToString("yyyy/MM/dd");
+                                dr["日期／H"] = firstDay.ToString("yyyy/MM/dd");
                                 for (int j = 1; j < StayTimeTable.Columns.Count; j++)
                                 {
                                     dr[j] = 0;
@@ -310,7 +328,7 @@ namespace parking_lot_app.Model.MyView
                                     EntryTimeTable.Rows.Add(dr);
                                     entryTimeIdx++;
                                 }
-                                string entryTimeHH = entryTime.Hour.ToString();
+                                string entryTimeHH = entryTime.Hour.ToString() + "-" + (entryTime.Hour + 1).ToString() + "點";
                                 EntryTimeTable.Rows[(int)entryTimeDaysDiff][entryTimeHH] = Convert.ToInt32(EntryTimeTable.Rows[(int)entryTimeDaysDiff][entryTimeHH].ToString()) + 1;
                                 EntryTimeTable.Rows[(int)entryTimeDaysDiff]["總計"] = Convert.ToInt32(EntryTimeTable.Rows[(int)entryTimeDaysDiff]["總計"].ToString()) + 1;
                             }
@@ -323,7 +341,7 @@ namespace parking_lot_app.Model.MyView
                             while ((int)departTimeDaysDiff > departureTimeIdx)
                             {
                                 DataRow dr = StayTimeTable.NewRow();
-                                dr["日期／小時"] = firstDay.AddDays(departureTimeIdx + 1).ToString("yyyy/MM/dd");
+                                dr["日期／H"] = firstDay.AddDays(departureTimeIdx + 1).ToString("yyyy/MM/dd");
                                 for (int j = 1; j < StayTimeTable.Columns.Count; j++)
                                 {
                                     dr[j] = 0;
@@ -331,26 +349,29 @@ namespace parking_lot_app.Model.MyView
                                 StayTimeTable.Rows.Add(dr);
                                 departureTimeIdx++;
                             }
-                            //日期／小時,<0.5,<1,01,02,03,04,05,06,07,08,09,10,11,12,13,14,15,16,17,18,19,>=20,總計
-                            if (stayTimehoursDiff >= 20)
+
+                            //日期／H,<0.5,<1,01,02,03,04,05,06,07,08,09,10,11,12,13,14,15,16,17,18,19,20,21,22,23,>=24,總計
+                            if (stayTimehoursDiff >= 24)
                             {
-                                StayTimeTable.Rows[(int)departTimeDaysDiff][">=20"] = Convert.ToInt32(StayTimeTable.Rows[(int)departTimeDaysDiff][">=20"].ToString()) + 1;
-                                StayTimeTable.Rows[(int)departTimeDaysDiff]["總計"] = Convert.ToInt32(StayTimeTable.Rows[(int)departTimeDaysDiff]["總計"].ToString()) + 1;
+                                StayTimeTable.Rows[(int)departTimeDaysDiff][">=24H"] = Math.Round(Convert.ToDouble(StayTimeTable.Rows[(int)departTimeDaysDiff][">=24H"]) + stayTimehoursDiff, 2);
+                                StayTimeTable.Rows[(int)departTimeDaysDiff]["總計"] = Math.Round(Convert.ToDouble(StayTimeTable.Rows[(int)departTimeDaysDiff]["總計"]) + stayTimehoursDiff, 2);
                             }
                             else if (stayTimehoursDiff >= 1)
                             {
-                                StayTimeTable.Rows[(int)departTimeDaysDiff][((int)stayTimehoursDiff).ToString()] = Convert.ToInt32(StayTimeTable.Rows[(int)departTimeDaysDiff][((int)stayTimehoursDiff).ToString()].ToString()) + 1;
-                                StayTimeTable.Rows[(int)departTimeDaysDiff]["總計"] = Convert.ToInt32(StayTimeTable.Rows[(int)departTimeDaysDiff]["總計"].ToString()) + 1;
+                                int stayIndex = (int)stayTimehoursDiff;
+
+                                StayTimeTable.Rows[(int)departTimeDaysDiff][$"{stayIndex}-{stayIndex + 1}H"] = Math.Round(Convert.ToDouble(StayTimeTable.Rows[(int)departTimeDaysDiff][$"{stayIndex}-{stayIndex + 1}H"]) + stayTimehoursDiff, 2);
+                                StayTimeTable.Rows[(int)departTimeDaysDiff]["總計"] = Math.Round(Convert.ToDouble(StayTimeTable.Rows[(int)departTimeDaysDiff]["總計"]) + stayTimehoursDiff, 2);
                             }
                             else if (stayTimeMinutesDiff >= 30)
                             {
-                                StayTimeTable.Rows[(int)departTimeDaysDiff]["<1"] = Convert.ToInt32(StayTimeTable.Rows[(int)departTimeDaysDiff]["<1"].ToString()) + 1;
-                                StayTimeTable.Rows[(int)departTimeDaysDiff]["總計"] = Convert.ToInt32(StayTimeTable.Rows[(int)departTimeDaysDiff]["總計"].ToString()) + 1;
+                                StayTimeTable.Rows[(int)departTimeDaysDiff]["<1H"] = Math.Round(Convert.ToDouble(StayTimeTable.Rows[(int)departTimeDaysDiff]["<1H"]) + stayTimehoursDiff, 2);
+                                StayTimeTable.Rows[(int)departTimeDaysDiff]["總計"] = Math.Round(Convert.ToDouble(StayTimeTable.Rows[(int)departTimeDaysDiff]["總計"]) + stayTimehoursDiff, 2);
                             }
                             else
                             {
-                                StayTimeTable.Rows[(int)departTimeDaysDiff]["<0.5"] = Convert.ToInt32(StayTimeTable.Rows[(int)departTimeDaysDiff]["<0.5"]) + 1;
-                                StayTimeTable.Rows[(int)departTimeDaysDiff]["總計"] = Convert.ToInt32(StayTimeTable.Rows[(int)departTimeDaysDiff]["總計"].ToString()) + 1;
+                                StayTimeTable.Rows[(int)departTimeDaysDiff]["<0.5H"] = Math.Round(Convert.ToDouble(StayTimeTable.Rows[(int)departTimeDaysDiff]["<0.5H"]) + stayTimehoursDiff, 2);
+                                StayTimeTable.Rows[(int)departTimeDaysDiff]["總計"] = Math.Round(Convert.ToDouble(StayTimeTable.Rows[(int)departTimeDaysDiff]["總計"]) + stayTimehoursDiff, 2);
                             }
                         }
                         else if (name == "收費金額")
@@ -362,10 +383,11 @@ namespace parking_lot_app.Model.MyView
                             double departureTimeDaysDiff = new TimeSpan(departureTime.Ticks - firstDay.Ticks).TotalDays;
                             if (departureTimeDaysDiff >= 0)
                             {
+                                //space_value floor_value ceiling_value
                                 while ((int)departureTimeDaysDiff > totalAmountIdx)
                                 {
                                     DataRow dr = TotalAmountTable.NewRow();
-                                    dr["日期／元"] = firstDay.ToString("yyyy/MM/dd");
+                                    dr["日期／元"] = firstDay.AddDays(totalAmountIdx + 1).ToString("yyyy/MM/dd");
                                     for (int j = 1; j < TotalAmountTable.Columns.Count; j++)
                                     {
                                         dr[j] = 0;
@@ -373,15 +395,15 @@ namespace parking_lot_app.Model.MyView
                                     TotalAmountTable.Rows.Add(dr);
                                     totalAmountIdx++;
                                 }
-                                decimal totalAmount = Math.Ceiling(Convert.ToDecimal(d) / 10);
-                                if (totalAmount > 30)
+                                int totalAmount = Convert.ToInt32(d);
+                                if (totalAmount > ceiling_value)
                                 {
-                                    TotalAmountTable.Rows[(int)departureTimeDaysDiff][">300"] = Convert.ToInt32(TotalAmountTable.Rows[(int)departureTimeDaysDiff][">300"].ToString()) + Convert.ToDecimal(d);
+                                    TotalAmountTable.Rows[(int)departureTimeDaysDiff][">" + ceiling_value] = Convert.ToInt32(TotalAmountTable.Rows[(int)departureTimeDaysDiff][">" + ceiling_value].ToString()) + Convert.ToDecimal(d);
                                     TotalAmountTable.Rows[(int)departureTimeDaysDiff]["總計"] = Convert.ToInt32(TotalAmountTable.Rows[(int)departureTimeDaysDiff]["總計"].ToString()) + Convert.ToDecimal(d);
                                 }
                                 else
                                 {
-                                    TotalAmountTable.Rows[(int)departureTimeDaysDiff][(int)totalAmount] = Convert.ToInt32(TotalAmountTable.Rows[(int)departureTimeDaysDiff][(int)totalAmount].ToString()) + Convert.ToDecimal(d);
+                                    TotalAmountTable.Rows[(int)departureTimeDaysDiff][totalAmount / space_value - floorIndex + 1] = Convert.ToInt32(TotalAmountTable.Rows[(int)departureTimeDaysDiff][totalAmount / space_value - floorIndex + 1].ToString()) + Convert.ToDecimal(d);
                                     TotalAmountTable.Rows[(int)departureTimeDaysDiff]["總計"] = Convert.ToInt32(TotalAmountTable.Rows[(int)departureTimeDaysDiff]["總計"].ToString()) + Convert.ToDecimal(d);
                                 }
                             }
@@ -403,6 +425,49 @@ namespace parking_lot_app.Model.MyView
                             sw.WriteLine("error1: " + DateTime.Now.ToString() + ",line: " + line + ", " + ex.Message);
                         }
                     }
+                }
+
+
+                if (name == "收費金額")
+                {
+                    //EntryTimeTable
+                    DataRow drr = EntryTimeTable.NewRow();
+                    for (int i = 1; i < EntryTimeTable.Columns.Count; i++)
+                    {
+                        drr[i] = 0;
+                        for (int j = 0; j < EntryTimeTable.Rows.Count; j++)
+                        {
+                            drr[i] = Convert.ToInt32(drr[i]) + Convert.ToInt32(EntryTimeTable.Rows[j][i]);
+                        }
+                    }
+                    drr["日期／時間"] = "總計";
+                    EntryTimeTable.Rows.Add(drr);
+
+                    //StayTimeTable
+                    drr = StayTimeTable.NewRow();
+                    for (int i = 1; i < StayTimeTable.Columns.Count; i++)
+                    {
+                        drr[i] = 0;
+                        for (int j = 0; j < StayTimeTable.Rows.Count; j++)
+                        {
+                            drr[i] = Math.Round(Convert.ToDouble(drr[i]) + Convert.ToDouble(StayTimeTable.Rows[j][i]), 2);
+                        }
+                    }
+                    drr["日期／H"] = "總計";
+                    StayTimeTable.Rows.Add(drr);
+
+                    //TotalAmountTable
+                    drr = TotalAmountTable.NewRow();
+                    for (int i = 1; i < TotalAmountTable.Columns.Count; i++)
+                    {
+                        drr[i] = 0;
+                        for (int j = 0; j < TotalAmountTable.Rows.Count; j++)
+                        {
+                            drr[i] = Convert.ToInt32(drr[i]) + Convert.ToInt32(TotalAmountTable.Rows[j][i]);
+                        }
+                    }
+                    drr["日期／元"] = "總計";
+                    TotalAmountTable.Rows.Add(drr);
                 }
                 DataTableToCSV(tempTable, csvFilePath);
                 DataTableToCSV(EntryTimeTable, entryTimeFile);

@@ -67,6 +67,7 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="Model\MyView\File.cs" />
+    <Compile Include="Model\MyView\IniApi.cs" />
     <Compile Include="ViewModels\MyViewViewModel.cs" />
     <Compile Include="ViewModels\PrismUserControl1ViewModel.cs" />
     <Compile Include="ViewModels\View1ViewModel.cs" />
@@ -130,6 +131,7 @@
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
     </EmbeddedResource>
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
