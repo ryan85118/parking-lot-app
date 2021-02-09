@@ -34,6 +34,7 @@ namespace parking_lot_app.Model.MyView
 
         public File()
         {
+            Directory.CreateDirectory(eventFilePath);
         }
 
         public void OpenFile()
@@ -353,7 +354,7 @@ namespace parking_lot_app.Model.MyView
                                     tempTable.Rows[i][name] = TimeReplace(d);
                                     DateTime departureTime = DateTime.Parse(tempTable.Rows[i]["出場時間"].ToString());
                                     DateTime entryTime = DateTime.Parse(tempTable.Rows[i]["入場時間"].ToString());
-             
+
 
                                     //EntryTimeTable
                                     double entryTimeDaysDiff = new TimeSpan(entryTime.Ticks - firstDay.Ticks).TotalDays;
@@ -395,25 +396,25 @@ namespace parking_lot_app.Model.MyView
                                     //日期／H,<0.5,<1,01,02,03,04,05,06,07,08,09,10,11,12,13,14,15,16,17,18,19,20,21,22,23,>=24,總計
                                     if (stayTimehoursDiff >= 24)
                                     {
-                                        StayTimeTable.Rows[(int)departTimeDaysDiff][">=24H"] = Math.Round(Convert.ToDouble(StayTimeTable.Rows[(int)departTimeDaysDiff][">=24H"]) + stayTimehoursDiff, 2);
-                                        StayTimeTable.Rows[(int)departTimeDaysDiff]["總計"] = Math.Round(Convert.ToDouble(StayTimeTable.Rows[(int)departTimeDaysDiff]["總計"]) + stayTimehoursDiff, 2);
+                                        StayTimeTable.Rows[(int)departTimeDaysDiff][">=24H"] = Math.Round(Convert.ToDouble(StayTimeTable.Rows[(int)departTimeDaysDiff][">=24H"]) + 1, 2);
+                                        StayTimeTable.Rows[(int)departTimeDaysDiff]["總計"] = Math.Round(Convert.ToDouble(StayTimeTable.Rows[(int)departTimeDaysDiff]["總計"]) + 1, 2);
                                     }
                                     else if (stayTimehoursDiff >= 1)
                                     {
                                         int stayIndex = (int)stayTimehoursDiff;
 
-                                        StayTimeTable.Rows[(int)departTimeDaysDiff][$"{stayIndex}-{stayIndex + 1}H"] = Math.Round(Convert.ToDouble(StayTimeTable.Rows[(int)departTimeDaysDiff][$"{stayIndex}-{stayIndex + 1}H"]) + stayTimehoursDiff, 2);
-                                        StayTimeTable.Rows[(int)departTimeDaysDiff]["總計"] = Math.Round(Convert.ToDouble(StayTimeTable.Rows[(int)departTimeDaysDiff]["總計"]) + stayTimehoursDiff, 2);
+                                        StayTimeTable.Rows[(int)departTimeDaysDiff][$"{stayIndex}-{stayIndex + 1}H"] = Math.Round(Convert.ToDouble(StayTimeTable.Rows[(int)departTimeDaysDiff][$"{stayIndex}-{stayIndex + 1}H"]) + 1, 2);
+                                        StayTimeTable.Rows[(int)departTimeDaysDiff]["總計"] = Math.Round(Convert.ToDouble(StayTimeTable.Rows[(int)departTimeDaysDiff]["總計"]) + 1, 2);
                                     }
                                     else if (stayTimeMinutesDiff >= 30)
                                     {
-                                        StayTimeTable.Rows[(int)departTimeDaysDiff]["<1H"] = Math.Round(Convert.ToDouble(StayTimeTable.Rows[(int)departTimeDaysDiff]["<1H"]) + stayTimehoursDiff, 2);
-                                        StayTimeTable.Rows[(int)departTimeDaysDiff]["總計"] = Math.Round(Convert.ToDouble(StayTimeTable.Rows[(int)departTimeDaysDiff]["總計"]) + stayTimehoursDiff, 2);
+                                        StayTimeTable.Rows[(int)departTimeDaysDiff]["<1H"] = Math.Round(Convert.ToDouble(StayTimeTable.Rows[(int)departTimeDaysDiff]["<1H"]) + 1, 2);
+                                        StayTimeTable.Rows[(int)departTimeDaysDiff]["總計"] = Math.Round(Convert.ToDouble(StayTimeTable.Rows[(int)departTimeDaysDiff]["總計"]) + 1, 2);
                                     }
                                     else
                                     {
-                                        StayTimeTable.Rows[(int)departTimeDaysDiff]["<0.5H"] = Math.Round(Convert.ToDouble(StayTimeTable.Rows[(int)departTimeDaysDiff]["<0.5H"]) + stayTimehoursDiff, 2);
-                                        StayTimeTable.Rows[(int)departTimeDaysDiff]["總計"] = Math.Round(Convert.ToDouble(StayTimeTable.Rows[(int)departTimeDaysDiff]["總計"]) + stayTimehoursDiff, 2);
+                                        StayTimeTable.Rows[(int)departTimeDaysDiff]["<0.5H"] = Math.Round(Convert.ToDouble(StayTimeTable.Rows[(int)departTimeDaysDiff]["<0.5H"]) + 1, 2);
+                                        StayTimeTable.Rows[(int)departTimeDaysDiff]["總計"] = Math.Round(Convert.ToDouble(StayTimeTable.Rows[(int)departTimeDaysDiff]["總計"]) + 1, 2);
                                     }
                                 }
                                 else if (name == "收費金額")
@@ -532,7 +533,6 @@ namespace parking_lot_app.Model.MyView
             }
             catch (Exception ex)
             {
-
                 var st = new StackTrace(ex, true);
                 // Get the top stack frame
                 var frame = st.GetFrame(0);
