@@ -21,10 +21,10 @@ namespace parking_lot_app.Model.MyView
         private static readonly string eventFilePath = "./event";
         private static readonly string eventFileName = "event.txt";
         private static readonly string eventFile = Path.Combine(eventFilePath, eventFileName);
-        private static readonly string outputFilePath = "./output";
-        private static readonly string entryTimeFilePath = "./output/單月入場";
-        private static readonly string stayTimeFilePath = "./output/單月停車";
-        private static readonly string totalAmountFilePath = "./output/單月金額";
+        private static readonly string outputFilePath = "../output";
+        private static readonly string entryTimeFilePath = "../output/單月入場";
+        private static readonly string stayTimeFilePath = "../output/單月停車";
+        private static readonly string totalAmountFilePath = "../output/單月金額";
         private string entryTimeFile;
         private string stayTimeFile;
         private string totalAmountFile;
@@ -37,8 +37,9 @@ namespace parking_lot_app.Model.MyView
             Directory.CreateDirectory(eventFilePath);
         }
 
-        public void OpenFile()
+        public DataTable[] OpenFile(string spaceValue, string ceilingValue, string floorValue)
         {
+            InitValues(spaceValue, ceilingValue, floorValue);
             OpenFileDialog odXls = new OpenFileDialog();
             //指定相應的開啟文件的目錄 AppDomain.CurrentDomain.BaseDirectory定位到Debug目錄，再根據實際情況進行目錄調整
             string folderPatha = AppDomain.CurrentDomain.BaseDirectory + @"databackup\";
@@ -48,7 +49,7 @@ namespace parking_lot_app.Model.MyView
             odXls.Multiselect = true;
             if (odXls.ShowDialog() == true)
             {
-                foreach (String fileName in odXls.FileNames)
+                foreach (string fileName in odXls.FileNames)
                 {
                     using (StreamWriter sw = new StreamWriter(eventFile, true))
                     {
@@ -57,12 +58,13 @@ namespace parking_lot_app.Model.MyView
                         tempName = Path.GetFileNameWithoutExtension(tempPath);
                         sw.WriteLine(tempName);
                     }
-                    ReadFile();
+                    return ReadFile();
                 }
             }
+            return null;
         }
 
-        private void ReadFile()
+        private DataTable[] ReadFile()
         {
             Directory.CreateDirectory(outputFilePath);
             OleDbConnection ole = null;
@@ -95,7 +97,7 @@ namespace parking_lot_app.Model.MyView
                 entryTimeFile = Path.Combine(entryTimeFilePath, tempName + "-單月入場表.csv");
                 stayTimeFile = Path.Combine(stayTimeFilePath, tempName + "-單月停車表.csv");
                 totalAmountFile = Path.Combine(totalAmountFilePath, tempName + "-單月金額表.csv");
-                SaveToCSV(dt, tempFilePath);
+                return SaveToCSV(dt, tempFilePath);
             }
             catch (Exception ex)
             {
@@ -111,23 +113,14 @@ namespace parking_lot_app.Model.MyView
                     ole.Close();
                 }
             }
+            return null;
         }
 
-        private void SaveToCSV(DataTable oTable, string csvFilePath)
+        private DataTable[] SaveToCSV(DataTable oTable, string csvFilePath)
         {
-            Directory.CreateDirectory(eventFilePath);
-            Directory.CreateDirectory(entryTimeFilePath);
-            Directory.CreateDirectory(stayTimeFilePath);
-            Directory.CreateDirectory(totalAmountFilePath);
+            CreateDirectory();
             try
             {
-                space_value = Convert.ToInt32(ini.ReadIniFile("Setting", "space_value", @"10"));
-                floor_value = Convert.ToInt32(ini.ReadIniFile("Setting", "floor_value", @"10"));
-                ceiling_value = Convert.ToInt32(ini.ReadIniFile("Setting", "ceiling_value", @"200"));
-                ini.WriteIniFile("Setting", "space_value", space_value.ToString());
-                ini.WriteIniFile("Setting", "floor_value", floor_value.ToString());
-                ini.WriteIniFile("Setting", "ceiling_value", ceiling_value.ToString());
-
                 int rowCount = oTable.Rows.Count;
                 DataTable tempTable = new DataTable("Temp");
                 DataTable EntryTimeTable = new DataTable("entryTime");
@@ -272,15 +265,13 @@ namespace parking_lot_app.Model.MyView
                             continue;
                         }
 
-                        using (StreamWriter sw = new StreamWriter("./test.txt", true))
-                        {
-                            sw.WriteLine("name: " + name);
-                        }
-
+                        Console.WriteLine("name: " + name);
                         if (name == "出場時間")
                         {
+                            Console.WriteLine("1: " + EntryTimeTable.Rows.Count);
                             try
                             {
+                                Console.WriteLine("2: " + EntryTimeTable.Rows.Count);
                                 for (int i = 0; i < endIndex - startIndex - 1; i++)
                                 {
                                     string d = oTable.Rows[i + startIndex][newColumnIndex].ToString();
@@ -306,6 +297,7 @@ namespace parking_lot_app.Model.MyView
                                     dr[j] = 0;
                                 }
                                 EntryTimeTable.Rows.Add(dr);
+                                Console.WriteLine("EntryTimeTable: " + EntryTimeTable.Rows.Count);
                                 entryTimeIdx = 0;
 
                                 dr = StayTimeTable.NewRow();
@@ -463,6 +455,7 @@ namespace parking_lot_app.Model.MyView
                                 var frame = st.GetFrame(0);
                                 // Get the line number from the stack frame
                                 var line = frame.GetFileLineNumber();
+                                MessageBox.Show("error1: " + DateTime.Now.ToString() + ",line: " + line + ", " + ex.Message);
                                 using (StreamWriter sw = new StreamWriter(eventFile, true))
                                 {
                                     sw.WriteLine("error1: " + DateTime.Now.ToString() + ",line: " + line + ", " + ex.Message);
@@ -470,6 +463,7 @@ namespace parking_lot_app.Model.MyView
                             }
                         }
 
+                        Console.WriteLine("name2: " + name);
 
                         if (name == "收費金額")
                         {
@@ -512,11 +506,16 @@ namespace parking_lot_app.Model.MyView
                             drr["日期／元"] = "總計";
                             TotalAmountTable.Rows.Add(drr);
                         }
-                        DataTableToCSV(tempTable, csvFilePath);
-                        DataTableToCSV(EntryTimeTable, entryTimeFile);
-                        DataTableToCSV(StayTimeTable, stayTimeFile);
-                        DataTableToCSV(TotalAmountTable, totalAmountFile);
                     }
+                    DataTableToCSV(tempTable, csvFilePath);
+                    Console.WriteLine("tempTable: " + tempTable.Rows.Count);
+                    DataTableToCSV(EntryTimeTable, entryTimeFile);
+                    Console.WriteLine("EntryTimeTable: " + EntryTimeTable.Rows.Count);
+                    DataTableToCSV(StayTimeTable, stayTimeFile);
+                    Console.WriteLine("StayTimeTable: " + StayTimeTable.Rows.Count);
+                    DataTableToCSV(TotalAmountTable, totalAmountFile);
+                    Console.WriteLine("TotalAmountTable: " + TotalAmountTable.Rows.Count); ;
+                    return new DataTable[3] { EntryTimeTable, StayTimeTable, TotalAmountTable };
                 }
                 catch (Exception ex)
                 {
@@ -539,9 +538,24 @@ namespace parking_lot_app.Model.MyView
                 // Get the line number from the stack frame
                 var line = frame.GetFileLineNumber();
                 MessageBox.Show("line" + line + "," + ex.Message);
-
             }
 
+            return null;
+        }
+
+        private void CreateDirectory()
+        {
+            Directory.CreateDirectory(eventFilePath);
+            Directory.CreateDirectory(entryTimeFilePath);
+            Directory.CreateDirectory(stayTimeFilePath);
+            Directory.CreateDirectory(totalAmountFilePath);
+        }
+
+        private void InitValues(string spaceValue, string ceilingValue, string floorValue)
+        {
+            space_value = Convert.ToInt32(spaceValue);
+            floor_value = Convert.ToInt32(ceilingValue);
+            ceiling_value = Convert.ToInt32(floorValue);
         }
 
         private StringCollection ExcelSheetNames()

@@ -66,6 +66,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Model\Chart\IniApi.cs" />
     <Compile Include="Model\MyView\File.cs" />
     <Compile Include="Model\MyView\IniApi.cs" />
     <Compile Include="ViewModels\MyViewViewModel.cs" />
@@ -139,6 +140,9 @@
     </None>
   </ItemGroup>
   <ItemGroup>
+    <PackageReference Include="LiveCharts.Wpf">
+      <Version>0.9.7</Version>
+    </PackageReference>
     <PackageReference Include="MaterialDesignThemes">
       <Version>3.2.0</Version>
     </PackageReference>
@@ -148,6 +152,7 @@
     <Resource Include="application.ico" />
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="Model\Api\" />
     <Folder Include="Model\Shared\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
