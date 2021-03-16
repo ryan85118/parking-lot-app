@@ -1,8 +1,8 @@
 ﻿using parking_lot_app.Views;
 using Prism.Ioc;
 using Prism.Regions;
-using System.Windows;
 using Prism.Unity;
+using System.Windows;
 
 namespace parking_lot_app
 {

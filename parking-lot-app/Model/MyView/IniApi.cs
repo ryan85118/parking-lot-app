@@ -1,7 +1,5 @@
-﻿using System;
-using System.Runtime.InteropServices;
+﻿using System.Runtime.InteropServices;
 using System.Text;
-
 
 namespace parking_lot_app.Model.MyView
 {
@@ -39,5 +37,3 @@ namespace parking_lot_app.Model.MyView
         }
     }
 }
-
-
