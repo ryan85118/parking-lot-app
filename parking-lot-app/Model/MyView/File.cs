@@ -455,11 +455,11 @@ namespace parking_lot_app.Model.MyView
                                 var frame = st.GetFrame(0);
                                 // Get the line number from the stack frame
                                 var line = frame.GetFileLineNumber();
-                                MessageBox.Show("error1: " + DateTime.Now.ToString() + ",line: " + line + ", " + ex.Message);
-                                using (StreamWriter sw = new StreamWriter(eventFile, true))
-                                {
-                                    sw.WriteLine("error1: " + DateTime.Now.ToString() + ",line: " + line + ", " + ex.Message);
-                                }
+                                //MessageBox.Show("error1: " + DateTime.Now.ToString() + ",line: " + line + ", " + ex.Message);
+                                //using (StreamWriter sw = new StreamWriter(eventFile, true))
+                                //{
+                                //    sw.WriteLine("error1: " + DateTime.Now.ToString() + ",line: " + line + ", " + ex.Message);
+                                //}
                             }
                         }
 
