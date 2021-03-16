@@ -1,16 +1,15 @@
-﻿using Prism.Commands;
+﻿using LiveCharts;
+using LiveCharts.Wpf;
+using parking_lot_app.Model.MyView;
+using parking_lot_app.Views;
+using Prism.Commands;
 using Prism.Mvvm;
 using Prism.Regions;
-using System.Threading.Tasks;
-using parking_lot_app.Views;
-using parking_lot_app.Model.MyView;
-using LiveCharts;
-using LiveCharts.Wpf;
-using System.Windows;
 using System;
-using System.Data;
-using System.Collections;
 using System.Collections.Generic;
+using System.Data;
+using System.Threading.Tasks;
+using System.Windows;
 
 namespace parking_lot_app.ViewModels
 {
@@ -28,9 +27,8 @@ namespace parking_lot_app.ViewModels
         private List<string> totalAmountLabels;
 
         private string spaceValue;
-        private string ceilingValue;
         private string floorValue;
-
+        private string ceilingValue;
 
         private readonly IRegionManager regionManager;
 
@@ -69,11 +67,13 @@ namespace parking_lot_app.ViewModels
             get { return entryTimeLabels; }
             set { SetProperty(ref entryTimeLabels, value); }
         }
+
         public List<string> StayTimeLabels
         {
             get { return stayTimeLabels; }
             set { SetProperty(ref stayTimeLabels, value); }
         }
+
         public List<string> TotalAmountLabels
         {
             get { return totalAmountLabels; }
@@ -85,24 +85,26 @@ namespace parking_lot_app.ViewModels
             get { return spaceValue; }
             set { SetProperty(ref spaceValue, value); }
         }
-        public string CeilingValue
-        {
-            get { return ceilingValue; }
-            set { SetProperty(ref ceilingValue, value); }
-        }
+
         public string FloorValue
         {
             get { return floorValue; }
             set { SetProperty(ref floorValue, value); }
         }
 
+        public string CeilingValue
+        {
+            get { return ceilingValue; }
+            set { SetProperty(ref ceilingValue, value); }
+        }
+
         public DelegateCommand GoNextCommand { get; set; }
         public DelegateCommand OpenFile { get; set; }
 
         public int Counter { get; set; }
+
         public MyViewModel(IRegionManager regionManager)
         {
-
             IniApi ini = new IniApi("./Setting.ini");
             InitIniData(ini);
 
@@ -146,7 +148,7 @@ namespace parking_lot_app.ViewModels
                 OpenFile = new DelegateCommand(() =>
                 {
                     WriteIniData(ini);
-                    DataTable[] tableList = f1.OpenFile(SpaceValue, CeilingValue, FloorValue);
+                    DataTable[] tableList = f1.OpenFile(SpaceValue, FloorValue, CeilingValue);
                     if (tableList == null)
                     {
                         return;
@@ -183,6 +185,7 @@ namespace parking_lot_app.ViewModels
                 regionManager.RequestNavigate("ContentRegion", nameof(View1));
             });
         }
+
         private List<string> ConvertTableToAxisX(DataTable table)
         {
             List<string> entryTimeValues = new List<string> { };
@@ -193,6 +196,7 @@ namespace parking_lot_app.ViewModels
             }
             return entryTimeValues;
         }
+
         private List<decimal> ConvertTableToList(DataTable table)
         {
             List<decimal> entryTimeValues = new List<decimal> { };
@@ -205,6 +209,7 @@ namespace parking_lot_app.ViewModels
             }
             return entryTimeValues;
         }
+
         private void InitIniData(IniApi ini)
         {
             ReadIniData(ini);
@@ -214,15 +219,15 @@ namespace parking_lot_app.ViewModels
         private void ReadIniData(IniApi ini)
         {
             SpaceValue = ini.ReadIniFile("Setting", "space_value", @"10");
-            CeilingValue = ini.ReadIniFile("Setting", "floor_value", @"10");
-            FloorValue = ini.ReadIniFile("Setting", "ceiling_value", @"150");
+            FloorValue = ini.ReadIniFile("Setting", "floor_value", @"10");
+            CeilingValue = ini.ReadIniFile("Setting", "ceiling_value", @"150");
         }
 
         private void WriteIniData(IniApi ini)
         {
             ini.WriteIniFile("Setting", "space_value", SpaceValue);
-            ini.WriteIniFile("Setting", "floor_value", CeilingValue);
-            ini.WriteIniFile("Setting", "ceiling_value", FloorValue);
+            ini.WriteIniFile("Setting", "floor_value", FloorValue);
+            ini.WriteIniFile("Setting", "ceiling_value", CeilingValue);
         }
 
         public bool IsNavigationTarget(NavigationContext navigationContext)

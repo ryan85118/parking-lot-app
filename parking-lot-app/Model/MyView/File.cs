@@ -11,7 +11,7 @@ using System.Windows;
 
 namespace parking_lot_app.Model.MyView
 {
-    class File
+    internal class File
     {
         private readonly IniApi ini = new IniApi("./Setting.ini");
         private int space_value;
@@ -37,7 +37,7 @@ namespace parking_lot_app.Model.MyView
             Directory.CreateDirectory(eventFilePath);
         }
 
-        public DataTable[] OpenFile(string spaceValue, string ceilingValue, string floorValue)
+        public DataTable[] OpenFile(string spaceValue, string floorValue, string ceilingValue)
         {
             InitValues(spaceValue, ceilingValue, floorValue);
             OpenFileDialog odXls = new OpenFileDialog();
@@ -166,7 +166,6 @@ namespace parking_lot_app.Model.MyView
                 TotalAmountTable.Columns.Add(">" + ceiling_value, typeof(int));
                 TotalAmountTable.Columns.Add("總計", typeof(int));
 
-
                 DateTime firstDay = new DateTime(3000, 1, 1);
                 int entryTimeIdx = -1;
                 int departureTimeIdx = -1;
@@ -242,19 +241,24 @@ namespace parking_lot_app.Model.MyView
                                         tempTable.Rows.Add(tempTable.NewRow());
                                     }
                                     break;
+
                                 case "繳費時間":
                                     name = "出場時間";
                                     break;
+
                                 case "發票號碼":
                                     name = Type2_Name;
                                     break;
+
                                 case "票號／月租卡":
                                 case "票號":
                                     name = "停車票號";
                                     break;
+
                                 case "金額":
                                     name = "收費金額";
                                     break;
+
                                 default:
                                     break;
                             }
@@ -346,7 +350,6 @@ namespace parking_lot_app.Model.MyView
                                     tempTable.Rows[i][name] = TimeReplace(d);
                                     DateTime departureTime = DateTime.Parse(tempTable.Rows[i]["出場時間"].ToString());
                                     DateTime entryTime = DateTime.Parse(tempTable.Rows[i]["入場時間"].ToString());
-
 
                                     //EntryTimeTable
                                     double entryTimeDaysDiff = new TimeSpan(entryTime.Ticks - firstDay.Ticks).TotalDays;
@@ -455,11 +458,11 @@ namespace parking_lot_app.Model.MyView
                                 var frame = st.GetFrame(0);
                                 // Get the line number from the stack frame
                                 var line = frame.GetFileLineNumber();
-                                MessageBox.Show("error1: " + DateTime.Now.ToString() + ",line: " + line + ", " + ex.Message);
-                                using (StreamWriter sw = new StreamWriter(eventFile, true))
-                                {
-                                    sw.WriteLine("error1: " + DateTime.Now.ToString() + ",line: " + line + ", " + ex.Message);
-                                }
+                                //MessageBox.Show("error1: " + DateTime.Now.ToString() + ",line: " + line + ", " + ex.Message);
+                                //using (StreamWriter sw = new StreamWriter(eventFile, true))
+                                //{
+                                //    sw.WriteLine("error1: " + DateTime.Now.ToString() + ",line: " + line + ", " + ex.Message);
+                                //}
                             }
                         }
 
@@ -519,16 +522,13 @@ namespace parking_lot_app.Model.MyView
                 }
                 catch (Exception ex)
                 {
-
                     var st = new StackTrace(ex, true);
                     // Get the top stack frame
                     var frame = st.GetFrame(0);
                     // Get the line number from the stack frame
                     var line = frame.GetFileLineNumber();
                     MessageBox.Show("line" + line + "," + ex.Message);
-
                 }
-
             }
             catch (Exception ex)
             {
@@ -554,8 +554,8 @@ namespace parking_lot_app.Model.MyView
         private void InitValues(string spaceValue, string ceilingValue, string floorValue)
         {
             space_value = Convert.ToInt32(spaceValue);
-            floor_value = Convert.ToInt32(ceilingValue);
-            ceiling_value = Convert.ToInt32(floorValue);
+            floor_value = Convert.ToInt32(floorValue);
+            ceiling_value = Convert.ToInt32(ceilingValue);
         }
 
         private StringCollection ExcelSheetNames()

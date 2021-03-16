@@ -16,10 +16,11 @@ namespace parking_lot_app.Views
             TextCompositionManager.AddPreviewTextInputStartHandler(this.B, new TextCompositionEventHandler(NumberValidationTextBox));
             TextCompositionManager.AddPreviewTextInputStartHandler(this.C, new TextCompositionEventHandler(NumberValidationTextBox));
         }
-         private   void NumberValidationTextBox(object sender, TextCompositionEventArgs e)
-            {
-                Regex regex = new Regex("[^0-9]+");
-                e.Handled = regex.IsMatch(e.Text);
-            }
+
+        private void NumberValidationTextBox(object sender, TextCompositionEventArgs e)
+        {
+            Regex regex = new Regex("[^0-9]+");
+            e.Handled = regex.IsMatch(e.Text);
         }
     }
+}
