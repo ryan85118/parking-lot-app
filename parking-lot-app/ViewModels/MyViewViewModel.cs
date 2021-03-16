@@ -202,7 +202,6 @@ namespace parking_lot_app.ViewModels
             List<decimal> entryTimeValues = new List<decimal> { };
             for (int i = 1; i < table.Columns.Count - 1; i++)
             {
-                Console.WriteLine("III: " + table.Rows[table.Rows.Count - 1][i].ToString());
                 var t = table.Rows[table.Rows.Count - 1][i].ToString();
                 decimal.TryParse(t, out decimal tt);
                 entryTimeValues.Add(tt);

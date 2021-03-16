@@ -3,7 +3,6 @@ using System;
 using System.Collections.Specialized;
 using System.Data;
 using System.Data.OleDb;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -121,6 +120,10 @@ namespace parking_lot_app.Model.MyView
             CreateDirectory();
             try
             {
+                if (floor_value > ceiling_value)
+                {
+                    throw new ArgumentException("Please check the floor_value and ceiling_value");
+                }
                 int rowCount = oTable.Rows.Count;
                 DataTable tempTable = new DataTable("Temp");
                 DataTable EntryTimeTable = new DataTable("entryTime");
@@ -269,13 +272,10 @@ namespace parking_lot_app.Model.MyView
                             continue;
                         }
 
-                        Console.WriteLine("name: " + name);
                         if (name == "出場時間")
                         {
-                            Console.WriteLine("1: " + EntryTimeTable.Rows.Count);
                             try
                             {
-                                Console.WriteLine("2: " + EntryTimeTable.Rows.Count);
                                 for (int i = 0; i < endIndex - startIndex - 1; i++)
                                 {
                                     string d = oTable.Rows[i + startIndex][newColumnIndex].ToString();
@@ -301,7 +301,6 @@ namespace parking_lot_app.Model.MyView
                                     dr[j] = 0;
                                 }
                                 EntryTimeTable.Rows.Add(dr);
-                                Console.WriteLine("EntryTimeTable: " + EntryTimeTable.Rows.Count);
                                 entryTimeIdx = 0;
 
                                 dr = StayTimeTable.NewRow();
@@ -325,12 +324,7 @@ namespace parking_lot_app.Model.MyView
                             }
                             catch (Exception ex)
                             {
-                                var st = new StackTrace(ex, true);
-                                // Get the top stack frame
-                                var frame = st.GetFrame(0);
-                                // Get the line number from the stack frame
-                                var line = frame.GetFileLineNumber();
-                                MessageBox.Show("line" + line + "," + ex.Message);
+                                MessageBox.Show(ex.Message);
                             }
                         }
 
@@ -453,20 +447,12 @@ namespace parking_lot_app.Model.MyView
                             }
                             catch (Exception ex)
                             {
-                                var st = new StackTrace(ex, true);
-                                // Get the top stack frame
-                                var frame = st.GetFrame(0);
-                                // Get the line number from the stack frame
-                                var line = frame.GetFileLineNumber();
-                                //MessageBox.Show("error1: " + DateTime.Now.ToString() + ",line: " + line + ", " + ex.Message);
-                                //using (StreamWriter sw = new StreamWriter(eventFile, true))
-                                //{
-                                //    sw.WriteLine("error1: " + DateTime.Now.ToString() + ",line: " + line + ", " + ex.Message);
-                                //}
+                                using (StreamWriter sw = new StreamWriter(eventFile, true))
+                                {
+                                    sw.WriteLine("error1: " + DateTime.Now.ToString() + ", " + ex.Message);
+                                }
                             }
                         }
-
-                        Console.WriteLine("name2: " + name);
 
                         if (name == "收費金額")
                         {
@@ -511,33 +497,19 @@ namespace parking_lot_app.Model.MyView
                         }
                     }
                     DataTableToCSV(tempTable, csvFilePath);
-                    Console.WriteLine("tempTable: " + tempTable.Rows.Count);
                     DataTableToCSV(EntryTimeTable, entryTimeFile);
-                    Console.WriteLine("EntryTimeTable: " + EntryTimeTable.Rows.Count);
                     DataTableToCSV(StayTimeTable, stayTimeFile);
-                    Console.WriteLine("StayTimeTable: " + StayTimeTable.Rows.Count);
                     DataTableToCSV(TotalAmountTable, totalAmountFile);
-                    Console.WriteLine("TotalAmountTable: " + TotalAmountTable.Rows.Count); ;
                     return new DataTable[3] { EntryTimeTable, StayTimeTable, TotalAmountTable };
                 }
                 catch (Exception ex)
                 {
-                    var st = new StackTrace(ex, true);
-                    // Get the top stack frame
-                    var frame = st.GetFrame(0);
-                    // Get the line number from the stack frame
-                    var line = frame.GetFileLineNumber();
-                    MessageBox.Show("line" + line + "," + ex.Message);
+                    MessageBox.Show(ex.Message);
                 }
             }
             catch (Exception ex)
             {
-                var st = new StackTrace(ex, true);
-                // Get the top stack frame
-                var frame = st.GetFrame(0);
-                // Get the line number from the stack frame
-                var line = frame.GetFileLineNumber();
-                MessageBox.Show("line" + line + "," + ex.Message);
+                MessageBox.Show(ex.Message);
             }
 
             return null;
