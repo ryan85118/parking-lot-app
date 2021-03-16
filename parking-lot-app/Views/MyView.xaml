@@ -61,10 +61,11 @@
             <DockPanel Grid.Row="2" VerticalAlignment="Center">
                 <Label
                     Margin="0,0,10,0"
-                    Content="停車間距（分）: "
+                    Content="金額間距（元）: "
                     FontSize="14"
                     FontWeight="Bold" />
-                <TextBox x:Name="A"
+                <TextBox
+                    x:Name="A"
                     FontSize="14"
                     Text="{Binding SpaceValue}"
                     TextAlignment="Center" />
@@ -72,10 +73,11 @@
             <DockPanel Grid.Row="3" VerticalAlignment="Center">
                 <Label
                     Margin="0,0,10,0"
-                    Content="停車最高（元）: "
+                    Content="停車最低（元）: "
                     FontSize="14"
                     FontWeight="Bold" />
-                <TextBox x:Name="B"
+                <TextBox
+                    x:Name="B"
                     FontSize="14"
                     Text="{Binding CeilingValue}"
                     TextAlignment="Center" />
@@ -83,10 +85,11 @@
             <DockPanel Grid.Row="4" VerticalAlignment="Center">
                 <Label
                     Margin="0,0,10,0"
-                    Content="停車最低（元）: "
+                    Content="停車最高（元）: "
                     FontSize="14"
                     FontWeight="Bold" />
-                <TextBox x:Name="C"
+                <TextBox
+                    x:Name="C"
                     FontSize="14"
                     Text="{Binding FloorValue}"
                     TextAlignment="Center" />
