@@ -129,6 +129,7 @@ namespace parking_lot_app.Model.MyView
                 DataTable EntryTimeTable = new DataTable("entryTime");
                 DataTable StayTimeTable = new DataTable("stayTime");
                 DataTable TotalAmountTable = new DataTable("totalAmount");
+                DataTable TotalNumberTable = new DataTable("totalNumber");
 
                 //Now 停車票號,入場時間,出場時間,發票號碼,收費金額
                 tempTable.Columns.Add("停車票號", typeof(string));
@@ -159,15 +160,19 @@ namespace parking_lot_app.Model.MyView
 
                 //TotalAmountTable
                 TotalAmountTable.Columns.Add("日期／元", typeof(string));
+                TotalNumberTable.Columns.Add("日期／元", typeof(string));
                 int floorIndex = floor_value / space_value;
                 int ceilingIndex = ceiling_value / space_value;
 
                 for (int i = 0; i <= ceilingIndex - floorIndex; i++)
                 {
                     TotalAmountTable.Columns.Add((i * space_value + floor_value).ToString(), typeof(int));
+                    TotalNumberTable.Columns.Add((i * space_value + floor_value).ToString(), typeof(int));
                 }
                 TotalAmountTable.Columns.Add(">" + ceiling_value, typeof(int));
+                TotalNumberTable.Columns.Add(">" + ceiling_value, typeof(int));
                 TotalAmountTable.Columns.Add("總計", typeof(int));
+                TotalNumberTable.Columns.Add("總計", typeof(int));
 
                 DateTime firstDay = new DateTime(3000, 1, 1);
                 int entryTimeIdx = -1;
@@ -314,12 +319,16 @@ namespace parking_lot_app.Model.MyView
 
                                 //TotalAmountTable
                                 dr = TotalAmountTable.NewRow();
+                                DataRow dr1 = TotalNumberTable.NewRow();
                                 dr["日期／元"] = firstDay.ToString("yyyy/MM/dd");
+                                dr1["日期／元"] = firstDay.ToString("yyyy/MM/dd");
                                 for (int j = 1; j < TotalAmountTable.Columns.Count; j++)
                                 {
                                     dr[j] = 0;
+                                    dr1[j] = 0;
                                 }
                                 TotalAmountTable.Rows.Add(dr);
+                                TotalNumberTable.Rows.Add(dr1);
                                 totalAmountIdx = 0;
                             }
                             catch (Exception ex)
@@ -415,28 +424,46 @@ namespace parking_lot_app.Model.MyView
                                     double departureTimeDaysDiff = new TimeSpan(departureTime.Ticks - firstDay.Ticks).TotalDays;
                                     if (departureTimeDaysDiff >= 0)
                                     {
+
                                         //space_value floor_value ceiling_value
                                         while ((int)departureTimeDaysDiff > totalAmountIdx)
                                         {
                                             DataRow dr = TotalAmountTable.NewRow();
+                                            DataRow dr1 = TotalNumberTable.NewRow();
                                             dr["日期／元"] = firstDay.AddDays(totalAmountIdx + 1).ToString("yyyy/MM/dd");
+                                            dr1["日期／元"] = firstDay.AddDays(totalAmountIdx + 1).ToString("yyyy/MM/dd");
                                             for (int j = 1; j < TotalAmountTable.Columns.Count; j++)
                                             {
                                                 dr[j] = 0;
+                                                dr1[j] = 0;
                                             }
                                             TotalAmountTable.Rows.Add(dr);
+                                            TotalNumberTable.Rows.Add(dr1);
                                             totalAmountIdx++;
                                         }
                                         int totalAmount = Convert.ToInt32(d);
+
                                         if (totalAmount > ceiling_value)
                                         {
                                             TotalAmountTable.Rows[(int)departureTimeDaysDiff][">" + ceiling_value] = Convert.ToInt32(TotalAmountTable.Rows[(int)departureTimeDaysDiff][">" + ceiling_value].ToString()) + Convert.ToDecimal(d);
+                                            TotalNumberTable.Rows[(int)departureTimeDaysDiff][">" + ceiling_value] = Convert.ToInt32(TotalNumberTable.Rows[(int)departureTimeDaysDiff][">" + ceiling_value].ToString()) + 1;
                                             TotalAmountTable.Rows[(int)departureTimeDaysDiff]["總計"] = Convert.ToInt32(TotalAmountTable.Rows[(int)departureTimeDaysDiff]["總計"].ToString()) + Convert.ToDecimal(d);
+                                            TotalNumberTable.Rows[(int)departureTimeDaysDiff]["總計"] = Convert.ToInt32(TotalNumberTable.Rows[(int)departureTimeDaysDiff]["總計"].ToString()) + 1;
+                                        }
+                                        else if (totalAmount < floor_value)
+                                        {
+                                            TotalAmountTable.Rows[(int)departureTimeDaysDiff][1] = Convert.ToInt32(TotalAmountTable.Rows[(int)departureTimeDaysDiff][1].ToString()) + Convert.ToDecimal(d);
+                                            TotalNumberTable.Rows[(int)departureTimeDaysDiff][1] = Convert.ToInt32(TotalNumberTable.Rows[(int)departureTimeDaysDiff][1].ToString()) + 1;
+                                            TotalAmountTable.Rows[(int)departureTimeDaysDiff]["總計"] = Convert.ToInt32(TotalAmountTable.Rows[(int)departureTimeDaysDiff]["總計"].ToString()) + Convert.ToDecimal(d);
+                                            TotalNumberTable.Rows[(int)departureTimeDaysDiff]["總計"] = Convert.ToInt32(TotalNumberTable.Rows[(int)departureTimeDaysDiff]["總計"].ToString()) + 1;
+
                                         }
                                         else
                                         {
                                             TotalAmountTable.Rows[(int)departureTimeDaysDiff][totalAmount / space_value - floorIndex + 1] = Convert.ToInt32(TotalAmountTable.Rows[(int)departureTimeDaysDiff][totalAmount / space_value - floorIndex + 1].ToString()) + Convert.ToDecimal(d);
+                                            TotalNumberTable.Rows[(int)departureTimeDaysDiff][totalAmount / space_value - floorIndex + 1] = Convert.ToInt32(TotalNumberTable.Rows[(int)departureTimeDaysDiff][totalAmount / space_value - floorIndex + 1].ToString()) + 1;
                                             TotalAmountTable.Rows[(int)departureTimeDaysDiff]["總計"] = Convert.ToInt32(TotalAmountTable.Rows[(int)departureTimeDaysDiff]["總計"].ToString()) + Convert.ToDecimal(d);
+                                            TotalNumberTable.Rows[(int)departureTimeDaysDiff]["總計"] = Convert.ToInt32(TotalNumberTable.Rows[(int)departureTimeDaysDiff]["總計"].ToString()) + 1;
                                         }
                                     }
                                 }
@@ -484,23 +511,34 @@ namespace parking_lot_app.Model.MyView
 
                             //TotalAmountTable
                             drr = TotalAmountTable.NewRow();
+
+                            DataRow drr1 = TotalAmountTable.NewRow();
+                            DataRow drr2 = TotalNumberTable.NewRow();
                             for (int i = 1; i < TotalAmountTable.Columns.Count; i++)
                             {
                                 drr[i] = 0;
+                                drr2[i] = 0;
+                                drr1[i] = 0;
                                 for (int j = 0; j < TotalAmountTable.Rows.Count; j++)
                                 {
                                     drr[i] = Convert.ToInt32(drr[i]) + Convert.ToInt32(TotalAmountTable.Rows[j][i]);
+                                    drr2[i] = Convert.ToInt32(drr2[i]) + Convert.ToInt32(TotalNumberTable.Rows[j][i]);
+                                    drr1[i] = drr2[i];
                                 }
                             }
+                            drr1["日期／元"] = "基數總計";
                             drr["日期／元"] = "總計";
+                            drr2["日期／元"] = "總計";
+                            TotalAmountTable.Rows.Add(drr1);
                             TotalAmountTable.Rows.Add(drr);
+                            TotalNumberTable.Rows.Add(drr2);
                         }
                     }
                     DataTableToCSV(tempTable, csvFilePath);
                     DataTableToCSV(EntryTimeTable, entryTimeFile);
                     DataTableToCSV(StayTimeTable, stayTimeFile);
                     DataTableToCSV(TotalAmountTable, totalAmountFile);
-                    return new DataTable[3] { EntryTimeTable, StayTimeTable, TotalAmountTable };
+                    return new DataTable[4] { EntryTimeTable, StayTimeTable, TotalAmountTable, TotalNumberTable };
                 }
                 catch (Exception ex)
                 {

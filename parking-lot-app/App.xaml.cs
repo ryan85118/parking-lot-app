@@ -20,9 +20,6 @@ namespace parking_lot_app
         protected override void RegisterTypes(IContainerRegistry containerRegistry)
         {
             containerRegistry.RegisterForNavigation<MyView>();
-            containerRegistry.RegisterForNavigation<View1>();
-            containerRegistry.RegisterForNavigation<PrismUserControl1>();
-            containerRegistry.RegisterForNavigation<View2>();
             //containerRegistry.RegisterForNavigation<object,MyView>(nameof(MyView));
         }
 
