@@ -21,10 +21,12 @@ namespace parking_lot_app.ViewModels
         private SeriesCollection entryTimeFileSeriesCollection;
         private SeriesCollection stayTimeFileSeriesCollection;
         private SeriesCollection totalAmountFileSeriesCollection;
+        private SeriesCollection totalNumberFileSeriesCollection;
 
         private List<string> entryTimeLabels;
         private List<string> stayTimeLabels;
         private List<string> totalAmountLabels;
+        private List<string> totalNumberLabels;
 
         private string spaceValue;
         private string floorValue;
@@ -62,6 +64,12 @@ namespace parking_lot_app.ViewModels
             set { SetProperty(ref totalAmountFileSeriesCollection, value); }
         }
 
+        public SeriesCollection TotalNumberFileSeriesCollection
+        {
+            get { return totalNumberFileSeriesCollection; }
+            set { SetProperty(ref totalNumberFileSeriesCollection, value); }
+        }
+
         public List<string> EntryTimeLabels
         {
             get { return entryTimeLabels; }
@@ -72,6 +80,12 @@ namespace parking_lot_app.ViewModels
         {
             get { return stayTimeLabels; }
             set { SetProperty(ref stayTimeLabels, value); }
+        }
+
+        public List<string> TotalNumberLabels
+        {
+            get { return totalNumberLabels; }
+            set { SetProperty(ref totalNumberLabels, value); }
         }
 
         public List<string> TotalAmountLabels
@@ -97,8 +111,6 @@ namespace parking_lot_app.ViewModels
             get { return ceilingValue; }
             set { SetProperty(ref ceilingValue, value); }
         }
-
-        public DelegateCommand GoNextCommand { get; set; }
         public DelegateCommand OpenFile { get; set; }
 
         public int Counter { get; set; }
@@ -117,21 +129,25 @@ namespace parking_lot_app.ViewModels
             ColumnSeries EntryTimeSeries = new ColumnSeries();
             ColumnSeries StayTimeSeries = new ColumnSeries();
             LineSeries TotalAmountSeries = new LineSeries();
-
+            LineSeries TotalNumberSeries = new LineSeries();
+            
             EntryTimeSeries.Title = "入場表";
             StayTimeSeries.Title = " 停車表";
-            TotalAmountSeries.Title = "金額表";
+            TotalAmountSeries.Title = "金額總額表";
+            TotalNumberSeries.Title = "金額總數表";
 
             EntryTimeSeries.DataLabels = true;
             StayTimeSeries.DataLabels = true;
             TotalAmountSeries.DataLabels = true;
-
+            TotalNumberSeries.DataLabels = true;
             //EntryTimeSeries.Stroke = System.Windows.Media.Brushes.Black;
             //StayTimeSeries.Stroke = System.Windows.Media.Brushes.Red;
             //TotalAmountSeries.Stroke = System.Windows.Media.Brushes.Blue;
 
             TotalAmountSeries.LineSmoothness = 0;
             TotalAmountSeries.PointGeometry = null;
+            TotalNumberSeries.LineSmoothness = 0;
+            TotalNumberSeries.PointGeometry = null;
             //Labels = new List<string> { "1", "3", "2", "4", "-3", "5", "2", "1" };
             ////添加折线图的数据
             //mylineseries.Values = new ChartValues<double>(temp);
@@ -141,6 +157,7 @@ namespace parking_lot_app.ViewModels
             EntryTimeFileSeriesCollection = new SeriesCollection(new ColumnSeries());
             StayTimeFileSeriesCollection = new SeriesCollection(new ColumnSeries());
             TotalAmountFileSeriesCollection = new SeriesCollection(new LineSeries());
+            TotalNumberFileSeriesCollection = new SeriesCollection(new LineSeries());
 
             try
             {
@@ -157,10 +174,12 @@ namespace parking_lot_app.ViewModels
                     List<decimal> entryTimeValues = ConvertTableToList(tableList[0]);
                     List<decimal> stayTimeValues = ConvertTableToList(tableList[1]);
                     List<decimal> totalAmountValues = ConvertTableToList(tableList[2]);
+                    List<decimal> totalNumberValues = ConvertTableToList(tableList[3]);
 
                     EntryTimeLabels = ConvertTableToAxisX(tableList[0]);
                     StayTimeLabels = ConvertTableToAxisX(tableList[1]);
                     TotalAmountLabels = ConvertTableToAxisX(tableList[2]);
+                    TotalNumberLabels = ConvertTableToAxisX(tableList[3]);
 
                     EntryTimeSeries.Values = new ChartValues<decimal>(entryTimeValues);
                     EntryTimeFileSeriesCollection.Clear();
@@ -173,6 +192,11 @@ namespace parking_lot_app.ViewModels
                     TotalAmountSeries.Values = new ChartValues<decimal>(totalAmountValues);
                     TotalAmountFileSeriesCollection.Clear();
                     TotalAmountFileSeriesCollection.Add(TotalAmountSeries);
+
+                    TotalNumberSeries.Values = new ChartValues<decimal>(totalNumberValues);
+                    TotalNumberFileSeriesCollection.Clear();
+                    TotalNumberFileSeriesCollection.Add(TotalNumberSeries);
+                    
                 });
             }
             catch (Exception ex)
@@ -180,10 +204,6 @@ namespace parking_lot_app.ViewModels
                 MessageBox.Show("File Open Error: search for File Model, " + ex.Message);
             }
             this.regionManager = regionManager;
-            GoNextCommand = new DelegateCommand(() =>
-            {
-                regionManager.RequestNavigate("ContentRegion", nameof(View1));
-            });
         }
 
         private List<string> ConvertTableToAxisX(DataTable table)
@@ -202,7 +222,6 @@ namespace parking_lot_app.ViewModels
             List<decimal> entryTimeValues = new List<decimal> { };
             for (int i = 1; i < table.Columns.Count - 1; i++)
             {
-                Console.WriteLine("III: " + table.Rows[table.Rows.Count - 1][i].ToString());
                 var t = table.Rows[table.Rows.Count - 1][i].ToString();
                 decimal.TryParse(t, out decimal tt);
                 entryTimeValues.Add(tt);
