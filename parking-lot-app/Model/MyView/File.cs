@@ -4,6 +4,7 @@ using System.Collections.Specialized;
 using System.Data;
 using System.Data.OleDb;
 using System.Diagnostics;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -269,13 +270,10 @@ namespace parking_lot_app.Model.MyView
                             continue;
                         }
 
-                        Console.WriteLine("name: " + name);
                         if (name == "出場時間")
                         {
-                            Console.WriteLine("1: " + EntryTimeTable.Rows.Count);
                             try
                             {
-                                Console.WriteLine("2: " + EntryTimeTable.Rows.Count);
                                 for (int i = 0; i < endIndex - startIndex - 1; i++)
                                 {
                                     string d = oTable.Rows[i + startIndex][newColumnIndex].ToString();
@@ -301,7 +299,6 @@ namespace parking_lot_app.Model.MyView
                                     dr[j] = 0;
                                 }
                                 EntryTimeTable.Rows.Add(dr);
-                                Console.WriteLine("EntryTimeTable: " + EntryTimeTable.Rows.Count);
                                 entryTimeIdx = 0;
 
                                 dr = StayTimeTable.NewRow();
@@ -341,7 +338,11 @@ namespace parking_lot_app.Model.MyView
                             try
                             {
                                 string d = oTable.Rows[i + startIndex][newColumnIndex].ToString();
-                                if (name == "入場時間")
+                                if (string.IsNullOrEmpty(d))
+                                {
+                                    continue;
+                                }
+                                else if (name == "入場時間")
                                 {
                                     tempTable.Rows[i][name] = TimeReplace(d);
                                 }
@@ -349,6 +350,7 @@ namespace parking_lot_app.Model.MyView
                                 {
                                     tempTable.Rows[i][name] = TimeReplace(d);
                                     DateTime departureTime = DateTime.Parse(tempTable.Rows[i]["出場時間"].ToString());
+
                                     DateTime entryTime = DateTime.Parse(tempTable.Rows[i]["入場時間"].ToString());
 
                                     //EntryTimeTable
@@ -441,7 +443,9 @@ namespace parking_lot_app.Model.MyView
                                         }
                                         else
                                         {
-                                            TotalAmountTable.Rows[(int)departureTimeDaysDiff][totalAmount / space_value - floorIndex + 1] = Convert.ToInt32(TotalAmountTable.Rows[(int)departureTimeDaysDiff][totalAmount / space_value - floorIndex + 1].ToString()) + Convert.ToDecimal(d);
+                                            int lowNumber = totalAmount / space_value - floorIndex + 1;
+                                            lowNumber = lowNumber < 1 ? 1 :lowNumber;
+                                            TotalAmountTable.Rows[(int)departureTimeDaysDiff][lowNumber] = Convert.ToInt32(TotalAmountTable.Rows[(int)departureTimeDaysDiff][lowNumber].ToString()) + Convert.ToDecimal(d);
                                             TotalAmountTable.Rows[(int)departureTimeDaysDiff]["總計"] = Convert.ToInt32(TotalAmountTable.Rows[(int)departureTimeDaysDiff]["總計"].ToString()) + Convert.ToDecimal(d);
                                         }
                                     }
@@ -453,20 +457,14 @@ namespace parking_lot_app.Model.MyView
                             }
                             catch (Exception ex)
                             {
-                                var st = new StackTrace(ex, true);
-                                // Get the top stack frame
-                                var frame = st.GetFrame(0);
-                                // Get the line number from the stack frame
-                                var line = frame.GetFileLineNumber();
-                                //MessageBox.Show("error1: " + DateTime.Now.ToString() + ",line: " + line + ", " + ex.Message);
-                                //using (StreamWriter sw = new StreamWriter(eventFile, true))
-                                //{
-                                //    sw.WriteLine("error1: " + DateTime.Now.ToString() + ",line: " + line + ", " + ex.Message);
-                                //}
+                                StackTrace st = new StackTrace(ex, true);
+                                StackFrame frame = st.GetFrame(st.FrameCount - 1);
+                                using (StreamWriter sw = new StreamWriter(eventFile, true))
+                                {
+                                    sw.WriteLine("error1: " + DateTime.Now.ToString() + ",line: " + frame.GetFileLineNumber() + ", " + ex.Message);
+                                }
                             }
                         }
-
-                        Console.WriteLine("name2: " + name);
 
                         if (name == "收費金額")
                         {
@@ -511,13 +509,9 @@ namespace parking_lot_app.Model.MyView
                         }
                     }
                     DataTableToCSV(tempTable, csvFilePath);
-                    Console.WriteLine("tempTable: " + tempTable.Rows.Count);
                     DataTableToCSV(EntryTimeTable, entryTimeFile);
-                    Console.WriteLine("EntryTimeTable: " + EntryTimeTable.Rows.Count);
                     DataTableToCSV(StayTimeTable, stayTimeFile);
-                    Console.WriteLine("StayTimeTable: " + StayTimeTable.Rows.Count);
                     DataTableToCSV(TotalAmountTable, totalAmountFile);
-                    Console.WriteLine("TotalAmountTable: " + TotalAmountTable.Rows.Count); ;
                     return new DataTable[3] { EntryTimeTable, StayTimeTable, TotalAmountTable };
                 }
                 catch (Exception ex)
@@ -580,13 +574,38 @@ namespace parking_lot_app.Model.MyView
             string dateTime = string.Empty;
             try
             {
-                string tempTime = time.Replace('/', '-');
+                string tempTime = time;
+
                 for (int i = 0; i < 24; i++)
                 {
                     string HH = i.ToString("00");
                     tempTime = tempTime.Replace($"{HH}{HH}:", $"{HH}:");
                 }
-                dateTime = DateTime.Parse(tempTime).ToString("yyyy/MM/dd HH:mm:ss");
+
+                //using (StreamWriter sw = new StreamWriter(eventFile, true))
+                //{
+                //    sw.WriteLine("tempTime: " + tempTime);
+                //}
+
+                if (string.IsNullOrEmpty(time))
+                {
+                    return null;
+                }
+                else if (time.Contains('/'))
+                {
+                    dateTime = DateTime.ParseExact(time, "d/M/yyyy H:mm:ss", CultureInfo.InvariantCulture).ToString("yyyy/MM/dd HH:mm:ss");
+                }
+                else
+                {
+                    dateTime = DateTime.ParseExact(time, "yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture).ToString("yyyy/MM/dd HH:mm:ss");
+
+                }
+
+                //using (StreamWriter sw = new StreamWriter(eventFile, true))
+                //{
+                //    sw.WriteLine("dateTime: " + dateTime);
+                //}
+
             }
             catch (Exception ex)
             {
