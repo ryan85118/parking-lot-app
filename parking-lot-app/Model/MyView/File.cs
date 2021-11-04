@@ -444,7 +444,7 @@ namespace parking_lot_app.Model.MyView
                                         else
                                         {
                                             int lowNumber = totalAmount / space_value - floorIndex + 1;
-                                            lowNumber = lowNumber < 1 ? 1 :lowNumber;
+                                            lowNumber = lowNumber < 1 ? 1 : lowNumber;
                                             TotalAmountTable.Rows[(int)departureTimeDaysDiff][lowNumber] = Convert.ToInt32(TotalAmountTable.Rows[(int)departureTimeDaysDiff][lowNumber].ToString()) + Convert.ToDecimal(d);
                                             TotalAmountTable.Rows[(int)departureTimeDaysDiff]["總計"] = Convert.ToInt32(TotalAmountTable.Rows[(int)departureTimeDaysDiff]["總計"].ToString()) + Convert.ToDecimal(d);
                                         }
@@ -598,14 +598,12 @@ namespace parking_lot_app.Model.MyView
                 else
                 {
                     dateTime = DateTime.ParseExact(time, "yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture).ToString("yyyy/MM/dd HH:mm:ss");
-
                 }
 
                 //using (StreamWriter sw = new StreamWriter(eventFile, true))
                 //{
                 //    sw.WriteLine("dateTime: " + dateTime);
                 //}
-
             }
             catch (Exception ex)
             {
